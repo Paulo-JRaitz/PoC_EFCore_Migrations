@@ -19,6 +19,21 @@ namespace EFPoc.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("ArmaHero", b =>
+                {
+                    b.Property<int>("ArmasId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HeroesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ArmasId", "HeroesId");
+
+                    b.HasIndex("HeroesId");
+
+                    b.ToTable("ArmaHero");
+                });
+
             modelBuilder.Entity("EFPoc.Models.Arma", b =>
                 {
                     b.Property<int>("Id")
@@ -33,8 +48,6 @@ namespace EFPoc.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("HeroId");
 
                     b.ToTable("Armas");
                 });
@@ -70,39 +83,122 @@ namespace EFPoc.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("BatalhaId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Nome")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BatalhaId");
-
                     b.ToTable("Heroes");
                 });
 
-            modelBuilder.Entity("EFPoc.Models.Arma", b =>
+            modelBuilder.Entity("EFPoc.Models.HeroiBatalha", b =>
+                {
+                    b.Property<int>("BatalhaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HeroId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("HeroiBatalhaBatalhaId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("HeroiBatalhaHeroId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BatalhaId", "HeroId");
+
+                    b.HasIndex("HeroId");
+
+                    b.HasIndex("HeroiBatalhaBatalhaId", "HeroiBatalhaHeroId");
+
+                    b.ToTable("HeroiBatalhas");
+                });
+
+            modelBuilder.Entity("EFPoc.Models.IdentidadeSecreta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("HeroId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NomeReal")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HeroId")
+                        .IsUnique();
+
+                    b.ToTable("IdentidadeSecretas");
+                });
+
+            modelBuilder.Entity("ArmaHero", b =>
+                {
+                    b.HasOne("EFPoc.Models.Arma", null)
+                        .WithMany()
+                        .HasForeignKey("ArmasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EFPoc.Models.Hero", null)
+                        .WithMany()
+                        .HasForeignKey("HeroesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EFPoc.Models.HeroiBatalha", b =>
+                {
+                    b.HasOne("EFPoc.Models.Batalha", "Batalha")
+                        .WithMany("HeroiBatalhas")
+                        .HasForeignKey("BatalhaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EFPoc.Models.Hero", "Hero")
+                        .WithMany("HeroiBatalhas")
+                        .HasForeignKey("HeroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EFPoc.Models.HeroiBatalha", null)
+                        .WithMany("HeroisBatalhas")
+                        .HasForeignKey("HeroiBatalhaBatalhaId", "HeroiBatalhaHeroId");
+
+                    b.Navigation("Batalha");
+
+                    b.Navigation("Hero");
+                });
+
+            modelBuilder.Entity("EFPoc.Models.IdentidadeSecreta", b =>
                 {
                     b.HasOne("EFPoc.Models.Hero", "Hero")
-                        .WithMany()
-                        .HasForeignKey("HeroId")
+                        .WithOne("Identidade")
+                        .HasForeignKey("EFPoc.Models.IdentidadeSecreta", "HeroId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Hero");
                 });
 
+            modelBuilder.Entity("EFPoc.Models.Batalha", b =>
+                {
+                    b.Navigation("HeroiBatalhas");
+                });
+
             modelBuilder.Entity("EFPoc.Models.Hero", b =>
                 {
-                    b.HasOne("EFPoc.Models.Batalha", "Batalha")
-                        .WithMany()
-                        .HasForeignKey("BatalhaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("HeroiBatalhas");
 
-                    b.Navigation("Batalha");
+                    b.Navigation("Identidade");
+                });
+
+            modelBuilder.Entity("EFPoc.Models.HeroiBatalha", b =>
+                {
+                    b.Navigation("HeroisBatalhas");
                 });
 #pragma warning restore 612, 618
         }
